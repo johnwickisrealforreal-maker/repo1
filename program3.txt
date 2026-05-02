@@ -1,0 +1,60 @@
+==============================
+PROGRAM 3: LEXICAL ANALYSER (PARTS OF SPEECH) USING LEX
+==============================
+
+
+// ---------- INSTALL ----------
+
+sudo apt update
+sudo apt install flex gcc
+
+
+// ---------- CREATE FILE ----------
+
+mkdir lex
+cd lex
+
+touch pos.l
+
+
+// ---------- CODE: pos.l ----------
+
+%{
+#include <stdio.h>
+%}
+
+%%
+
+"i"|"you"|"he"|"she"|"they"     { printf("PRONOUN\n"); }
+"is"|"am"|"are"|"was"|"were"    { printf("VERB\n"); }
+"run"|"eat"|"go"|"play"         { printf("VERB\n"); }
+"quick"|"happy"|"sad"           { printf("ADJECTIVE\n"); }
+"quickly"|"slowly"              { printf("ADVERB\n"); }
+"a"|"an"|"the"                  { printf("ARTICLE\n"); }
+[0-9]+                          { printf("NUMBER\n"); }
+[a-zA-Z]+                       { printf("WORD\n"); }
+\n                              { }
+.                               { }
+
+%%
+
+int main() {
+    printf("Enter text:\n");
+    yylex();
+    return 0;
+}
+
+
+// ---------- COMPILE & RUN ----------
+
+lex pos.l
+gcc lex.yy.c -o pos -ll
+./pos
+
+
+// ---------- SAMPLE INPUT ----------
+
+i am happy
+he run quickly
+
+
