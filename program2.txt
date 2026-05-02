@@ -1,0 +1,113 @@
+==============================
+PROGRAM 2: TWO PASS MACRO PROCESSOR
+==============================
+
+
+// ---------- SETUP ----------
+
+gcc --version
+
+sudo apt update
+sudo apt install build-essential
+
+
+mkdir macro
+cd macro
+
+touch macro.c input.asm
+
+
+// ---------- INPUT: input.asm ----------
+
+MACRO
+INCR &ARG
+ADD AREG, &ARG
+MEND
+
+START 100
+INCR X
+END
+
+
+// ---------- CODE: macro.c ----------
+
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 50
+
+struct { char name[20]; int index; } MNT[MAX];
+char MDT[MAX][100];
+
+int mntc = 0, mdtc = 0;
+
+// PASS 1
+void pass1(FILE *fp) {
+    char line[100], w1[20];
+
+    while (fgets(line, sizeof(line), fp)) {
+        sscanf(line, "%s", w1);
+
+        if (strcmp(w1, "MACRO") == 0) {
+            fgets(line, sizeof(line), fp);
+            sscanf(line, "%s", w1);
+
+            strcpy(MNT[mntc].name, w1);
+            MNT[mntc].index = mdtc;
+            mntc++;
+
+            while (fgets(line, sizeof(line), fp)) {
+                strcpy(MDT[mdtc++], line);
+                if (strstr(line, "MEND")) break;
+            }
+        }
+    }
+}
+
+// PASS 2
+void pass2(FILE *fp) {
+    char line[100], w1[20];
+
+    rewind(fp);
+
+    while (fgets(line, sizeof(line), fp)) {
+        sscanf(line, "%s", w1);
+
+        int found = -1;
+
+        for (int i = 0; i < mntc; i++)
+            if (strcmp(w1, MNT[i].name) == 0)
+                found = i;
+
+        if (found != -1) {
+            int i = MNT[found].index;
+            while (!strstr(MDT[i], "MEND"))
+                printf("%s", MDT[i++]);
+        }
+        else if (strcmp(w1, "MACRO") != 0)
+            printf("%s", line);
+    }
+}
+
+int main() {
+    FILE *fp = fopen("input.asm", "r");
+
+    pass1(fp);
+    pass2(fp);
+
+    fclose(fp);
+    return 0;
+}
+
+
+// ---------- COMPILE & RUN ----------
+
+gcc macro.c -o macro
+./macro
+
+
+// ---------- OUTPUT ----------
+
+START 100
+ADD AREG, X
+END
