@@ -1,0 +1,96 @@
+==============================
+PROGRAM 5: THREE ADDRESS CODE (TAC) GENERATION
+==============================
+
+
+// ---------- CREATE FILE ----------
+
+mkdir tac
+cd tac
+
+touch tac.c
+
+
+// ---------- CODE: tac.c ----------
+
+#include <stdio.h>
+#include <string.h>
+
+int temp = 1;
+
+// replace substring with temp variable
+void replace(char *exp, int pos, char *rep) {
+    char newexp[100];
+    int i;
+
+    // copy before operand1
+    strncpy(newexp, exp, pos-1);
+    newexp[pos-1] = '\0';
+
+    // add temp
+    strcat(newexp, rep);
+
+    // add rest
+    strcat(newexp, exp + pos + 2);
+
+    strcpy(exp, newexp);
+}
+
+int main() {
+    char exp[100];
+
+    printf("Enter expression: ");
+    scanf("%s", exp);
+
+    // handle *, /
+    for(int i = 0; exp[i]; i++) {
+        if(exp[i] == '*' || exp[i] == '/') {
+            char op1[10], op2[10], t[10];
+
+            // extract operands properly
+            sscanf(&exp[i-1], "%[^*/+-]%*c%[^*/+-]", op1, op2);
+
+            printf("t%d = %s %c %s\n", temp, op1, exp[i], op2);
+
+            sprintf(t, "t%d", temp++);
+            replace(exp, i, t);
+
+            i = -1;
+        }
+    }
+
+    // handle +, -
+    for(int i = 0; exp[i]; i++) {
+        if(exp[i] == '+' || exp[i] == '-') {
+            char op1[10], op2[10], t[10];
+
+            sscanf(&exp[i-1], "%[^*/+-]%*c%[^*/+-]", op1, op2);
+
+            printf("t%d = %s %c %s\n", temp, op1, exp[i], op2);
+
+            sprintf(t, "t%d", temp++);
+            replace(exp, i, t);
+
+            i = -1;
+        }
+    }
+
+    return 0;
+}
+
+
+// ---------- COMPILE & RUN ----------
+
+gcc tac.c -o tac
+./tac
+
+
+// ---------- SAMPLE INPUT ----------
+
+a+b*c
+
+
+// ---------- OUTPUT ----------
+
+t1 = b * c
+t2 = a + t1
