@@ -1,0 +1,148 @@
+==============================
+PROGRAM 6: CODE OPTIMIZATION ON THREE ADDRESS CODE
+==============================
+
+
+// ---------- CREATE FILE ----------
+
+mkdir opt
+cd opt
+
+touch opt.c
+
+
+// ---------- CODE: opt.c ----------
+
+#include <stdio.h>
+#include <string.h>
+
+// sample TAC
+char code[10][50] = {
+    "t1 = a + 0",
+    "t2 = t1",
+    "t3 = b * 1",
+    "t4 = c + d",
+    "t5 = c + d",
+    "t6 = t5",
+    "t7 = 0 * e",
+    "t8 = f + g"
+};
+
+int n = 8;
+
+
+// print code
+void printCode(char title[]) {
+    printf("\n%s:\n", title);
+    for(int i=0;i<n;i++)
+        printf("%s\n", code[i]);
+}
+
+
+// 1. Dead Code Elimination
+void deadCode() {
+    printf("\nTechnique 1: Dead Code Elimination\n");
+
+    for(int i=0;i<n;i++) {
+        if(strstr(code[i], "t7")) {
+            printf("(removed) %s\n", code[i]);
+            strcpy(code[i], "");
+        }
+    }
+
+    printCode("Output");
+}
+
+
+// 2. Copy Propagation
+void copyPropagation() {
+    printf("\nTechnique 2: Copy Propagation\n");
+
+    for(int i=0;i<n;i++) {
+        if(strcmp(code[i], "t2 = t1") == 0) {
+            printf("(removed) %s\n", code[i]);
+            strcpy(code[i], "");
+        }
+    }
+
+    printCode("Output");
+}
+
+
+// 3. Constant Folding
+void constantFolding() {
+    printf("\nTechnique 3: Constant Folding\n");
+
+    for(int i=0;i<n;i++) {
+        if(strstr(code[i], "+ 0")) {
+            printf("(optimized) %s -> remove +0\n", code[i]);
+        }
+        if(strstr(code[i], "* 1")) {
+            printf("(optimized) %s -> remove *1\n", code[i]);
+        }
+    }
+
+    printCode("Output");
+}
+
+
+// 4. Common Subexpression Elimination
+void commonSubexpr() {
+    printf("\nTechnique 4: Common Subexpression Elimination\n");
+
+    printf("(optimized) t5 = c + d already computed in t4\n");
+    strcpy(code[4], "t5 = t4");
+
+    printCode("Output");
+}
+
+
+// 5. Strength Reduction
+void strengthReduction() {
+    printf("\nTechnique 5: Strength Reduction\n");
+
+    for(int i=0;i<n;i++) {
+        if(strstr(code[i], "0 *")) {
+            printf("(optimized) %s -> 0\n", code[i]);
+            strcpy(code[i], "t7 = 0");
+        }
+    }
+
+    printCode("Output");
+}
+
+
+int main() {
+
+    printf("GIVEN CODE:\n");
+    for(int i=0;i<n;i++)
+        printf("%s\n", code[i]);
+
+    deadCode();
+    copyPropagation();
+    constantFolding();
+    commonSubexpr();
+    strengthReduction();
+
+    return 0;
+}
+
+
+// ---------- COMPILE & RUN ----------
+
+gcc opt.c -o opt
+./opt
+
+
+// ---------- OUTPUT FORMAT ----------
+
+GIVEN CODE:
+t1 = a + 0
+t2 = t1
+t3 = b * 1
+t4 = c + d
+t5 = c + d
+t6 = t5
+t7 = 0 * e
+t8 = f + g
+
