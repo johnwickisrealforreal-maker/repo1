@@ -1,5 +1,5 @@
 ==============================
-PROGRAM 6: CODE OPTIMIZATION (STEP-WISE OUTPUT)
+PROGRAM 6: CODE OPTIMIZATION (SIMPLIFIED - TOP 3)
 ==============================
 
 
@@ -30,14 +30,14 @@ char original[N][50] = {
     "t8 = f + g"
 };
 
-// utility: copy code
-void copyCode(char dest[N][50]) {
+// copy utility
+void copy(char dest[N][50]) {
     for(int i=0;i<N;i++)
         strcpy(dest[i], original[i]);
 }
 
-// print code
-void printCode(char title[], char code[N][50]) {
+// print utility
+void print(char title[], char code[N][50]) {
     printf("\n%s:\n", title);
     for(int i=0;i<N;i++)
         if(strlen(code[i]) > 0)
@@ -46,84 +46,46 @@ void printCode(char title[], char code[N][50]) {
 
 
 // 1. Dead Code Elimination
-void deadCode() {
-    char code[N][50];
-    copyCode(code);
+void dead() {
+    char code[N][50]; copy(code);
 
-    for(int i=0;i<N;i++) {
+    for(int i=0;i<N;i++)
         if(strstr(code[i], "t7"))
             strcpy(code[i], "");
-    }
 
-    printCode("1. After Dead Code Elimination", code);
+    print("1. After Dead Code Elimination", code);
 }
 
 
-// 2. Copy Propagation
-void copyPropagation() {
-    char code[N][50];
-    copyCode(code);
+// 2. Common Subexpression Elimination
+void common() {
+    char code[N][50]; copy(code);
 
-    for(int i=0;i<N;i++) {
-        if(strcmp(code[i], "t2 = t1") == 0)
-            strcpy(code[i], "");
-    }
+    strcpy(code[4], "t5 = t4"); // reuse t4
 
-    printCode("2. After Copy Propagation", code);
+    print("2. After Common Subexpression Elimination", code);
 }
 
 
-// 3. Constant Folding
-void constantFolding() {
-    char code[N][50];
-    copyCode(code);
+// 3. Constant Folding / Simplification
+void constant() {
+    char code[N][50]; copy(code);
 
-    for(int i=0;i<N;i++) {
-        if(strstr(code[i], "+ 0"))
-            sscanf(code[i], "%[^=]= %[^+]+ 0", code[i], code[i]); // remove +0
+    strcpy(code[0], "t1 = a");   // a + 0 → a
+    strcpy(code[2], "t3 = b");   // b * 1 → b
+    strcpy(code[6], "t7 = 0");   // 0 * e → 0
 
-        if(strstr(code[i], "* 1"))
-            sscanf(code[i], "%[^=]= %[^*]* 1", code[i], code[i]); // remove *1
-    }
-
-    printCode("3. After Constant Folding", code);
-}
-
-
-// 4. Common Subexpression Elimination
-void commonSubexpr() {
-    char code[N][50];
-    copyCode(code);
-
-    strcpy(code[4], "t5 = t4");
-
-    printCode("4. After Common Subexpression Elimination", code);
-}
-
-
-// 5. Strength Reduction
-void strengthReduction() {
-    char code[N][50];
-    copyCode(code);
-
-    for(int i=0;i<N;i++) {
-        if(strstr(code[i], "0 *"))
-            strcpy(code[i], "t7 = 0");
-    }
-
-    printCode("5. After Strength Reduction", code);
+    print("3. After Constant Folding", code);
 }
 
 
 int main() {
 
-    printCode("GIVEN CODE", original);
+    print("GIVEN CODE", original);
 
-    deadCode();
-    copyPropagation();
-    constantFolding();
-    commonSubexpr();
-    strengthReduction();
+    dead();
+    common();
+    constant();
 
     return 0;
 }
